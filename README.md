@@ -1,4 +1,4 @@
-# TrainingDaggerPandec
+# TrainingDaggerPandecKT
  Training tanggal 21 Mei 2020 Sabtu 16:00
 
 - TODO 1
@@ -6,10 +6,11 @@
 //library
 def dagger_version = "2.25.2"
 implementation "com.google.dagger:dagger:$dagger_version"
-annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
+kapt "com.google.dagger:dagger-compiler:$dagger_version"
 implementation "com.google.dagger:dagger-android:$dagger_version"
 implementation "com.google.dagger:dagger-android-support:$dagger_version"
-annotationProcessor "com.google.dagger:dagger-android-processor:$dagger_version"
+kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+
 def retrofit_version = "2.5.0"
 implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
 implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
@@ -18,13 +19,12 @@ implementation 'com.google.code.gson:gson:2.8.5'
 
 #
 - TODO 2
-```java
-public class MyApp extends DaggerApplication {
+```kotlin
+class MyApp : DaggerApplication(){
 
-   @Override
-   protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
-       return null;
-   }
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication>? {
+        return null
+    }
 }
 ```
 
@@ -48,23 +48,22 @@ public class MyApp extends DaggerApplication {
 
 #
 - TODO 4
-```java
-//todo 4
+```kotlin
 @Singleton
 @Component(
-        modules = {
-                AndroidSupportInjectionModule.class,
-        }
+    modules = [
+        AndroidSupportInjectionModule::class,
+    ]
 )
-public interface AppComponent extends AndroidInjector<MyApp> {
+interface AppComponent : AndroidInjector<MyApp> {
 
     @Component.Builder
     interface Builder{
 
         @BindsInstance
-        Builder application(Application application);
+        fun application(application: Application) : Builder
 
-        AppComponent build();
+        fun build(): AppComponent
     }
 }
 ```
@@ -74,57 +73,61 @@ public interface AppComponent extends AndroidInjector<MyApp> {
 
 #
 - TODO 6
-```java
-public class MyApp extends DaggerApplication {
+```kotlin
+class MyApp : DaggerApplication(){
 
-   @Override
-   protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
-       // todo 6
-       return DaggerAppComponent.builder().application(this).build();
-   }
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+        return DaggerAppComponent.builder().application(this).build();
+    }
 }
 ```
 
 #
 - TODO 7
-```java
+```kotlin
 @Module
-public abstract class ActivityBuildersModule {
+abstract class ActivityBuildersModule{
     @ContributesAndroidInjector
-    abstract MainActivity contributesMainActivity();
+    abstract fun constributesMainActivity() : MainActivity
 }
 ```
 
 #
 - TODO 8
-```java
-@Singleton
-@Component(
-        modules = {
-                AndroidSupportInjectionModule.class,
-                //todo 8
-                ActivityBuildersModule.class,
-                //end todo 8
-        }
-)
-public interface AppComponent extends AndroidInjector<MyApp> {
+```kotlin
+ @Singleton
+ @Component(
+     modules = [
+         AndroidSupportInjectionModule::class,
+         //todo 8
+         ActivityBuildersModule::class,
+         //end todo 8
+     ]
+ )
+ interface AppComponent : AndroidInjector<MyApp> {
 
-    ...
+     @Component.Builder
+     interface Builder{
 
-}
+         @BindsInstance
+         fun application(application: Application) : Builder
+
+         fun build(): AppComponent
+     }
+ }
+
 ```
 
 #
 - TODO 9 DaggerAppCompatActivity
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
     ...
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
     }
 }
@@ -132,7 +135,7 @@ public class MainActivity extends DaggerAppCompatActivity {
 
 #
 - TODO 10
-```java
+```kotlin
 @Module
 class AppModule {
 }
@@ -140,50 +143,47 @@ class AppModule {
 
 #
 - TODO 11
-```java
-@Singleton
-@Component(
-        modules = {
-                AndroidSupportInjectionModule.class,
-                ActivityBuildersModule.class,
-                //todo 11
-                AppModule.class
-                //end todo 11
-        }
-)
-public interface AppComponent extends AndroidInjector<MyApp> {
-
+```kotlin
+ @Singleton
+ @Component(
+     modules = [
+         AndroidSupportInjectionModule::class,
+         ActivityBuildersModule::class,
+         //todo 11
+         AppModule::class
+         //end todo 11
+     ]
+ )
+ interface AppComponent : AndroidInjector<MyApp> {
     ...
-
-}
+ }
 ```
 
 #
 - TODO 12
-```java
+```kotlin
 @Module
 class AppModule {
 
     //todo 12
     @Singleton
     @Provides
-    static String providesString(){
-        return "ProvideString";
-    }//end todo 12
+    fun providesString(): String {
+        return "ProvideString"
+    } //end todo 12
 }
 ```
 
 #
 - TODO 13
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
     //todo 13
     @Inject
-    String str;
+    lateinit var str: String
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    override fun onCreate(savedInstanceState: Bundle?) {
 
         ...
 
@@ -193,14 +193,13 @@ public class MainActivity extends DaggerAppCompatActivity {
 
 #
 - TODO 14
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
     @Inject
     String str;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    override fun onCreate(savedInstanceState: Bundle?) {
 
         //todo 14
         myLogD(TAG, "String Inject : "+ str);
@@ -211,27 +210,27 @@ public class MainActivity extends DaggerAppCompatActivity {
 
 #
 - TODO 15
-```java
+```kotlin
 @Module
 class AppModule {
 
     //todo 15
     @Singleton
     @Provides
-    static Context provideContext(Application application){
-        return application.getApplicationContext();
-    }//end todo 15
+    fun provideContext(application: Application): Context {
+        return application.applicationContext
+    } //end todo 15
 }
 ```
 
 #
 - TODO 16
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
     //todo 16
     @Inject
-    Context context;
+    lateinit var context: Context
 
     ...
 }
@@ -239,15 +238,13 @@ public class MainActivity extends DaggerAppCompatActivity {
 
 #
 - TODO 17
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
     @Inject
     Context context;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(R.layout.activity_main);
 
         ..
@@ -260,68 +257,72 @@ public class MainActivity extends DaggerAppCompatActivity {
 
 #
 - TODO 18
-```java
-public class ResponsePost {
+```kotlin
+data class ResponsePost(
 
-	@SerializedName("id")
-	private int id;
+	@field:SerializedName("id")
+    var id: Int? = null,
 
-	@SerializedName("title")
-	private String title;
+	@field:SerializedName("title")
+	val title: String? = null,
 
-	@SerializedName("body")
-	private String body;
+	@field:SerializedName("body")
+	val body: String? = null,
 
-	@SerializedName("userId")
-	private int userId;
-	//getter setter
-}
+	@field:SerializedName("userId")
+	val userId: Int? = null
+)
 ```
 
 #
 - TODO 19
-```java
-public interface ApiService {
+```kotlin
+interface ApiService {
 
     //https://jsonplaceholder.typicode.com/posts?userId=1
     @GET("posts")
-    Call<List<ResponsePost>> getPost(
-            @Query("userId") int id
-    );
+    fun getPost(
+        @Query("userId") id: Int
+    ): Call<List<ResponsePost>>
 }
 ```
 
 #
 - TODO 20
-```java
+```kotlin
 @Module
 class AppModule {
 
     //todo 20
     @Provides
     @Singleton
-    static Retrofit providesRetrofit(){
-        return new Retrofit.Builder()
-                .baseUrl("https://jsonplaceholder.typicode.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+    fun providesRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://jsonplaceholder.typicode.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
     }
+
+    @Singleton
+    @Provides
+    fun providesApiService(retrofit: Retrofit): ApiService {
+        return retrofit.create(ApiService::class.java)
+    } //end todo 20
 }
 ```
 
 #
 - TODO 21
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
     //todo 21
     @Inject
-    ApiService apiService;
+    lateinit var apiService: ApiService
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
     }
 }
@@ -329,93 +330,83 @@ public class MainActivity extends DaggerAppCompatActivity {
 
 #
 - TODO 22
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
     @Inject
-    ApiService apiService;
+    lateinit var apiService: ApiService
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         //todo 22
-        apiService.getPost(1).enqueue(new Callback<List<ResponsePost>>() {
-            @Override
-            public void onResponse(Call<List<ResponsePost>> call, Response<List<ResponsePost>> response) {
-                myLogD(TAG, "ApiService Inject(Success) : "+ response.body().size());
-            }
+        apiService.getPost(1)
+            .enqueue(object : Callback<List<ResponsePost>> {
+                override fun onResponse(call: Call<List<ResponsePost>>, response: Response<List<ResponsePost>>) {
+                    myLogD(TAG, "ApiService Inject(Success) : " + response.body()!!.size)
+                }
 
-            @Override
-            public void onFailure(Call<List<ResponsePost>> call, Throwable t) {
-                myLogD(TAG, "ApiService Inject(error) : "+ t.getMessage());
-            }
-        });
+                override fun onFailure(call: Call<List<ResponsePost>>, t: Throwable) {
+                    myLogD(TAG, "ApiService Inject(error) : " + t.message)
+                }
+            })
     }
 }
 ```
 
 #
 - TODO 23
-```java
+```kotlin
 //todo 23
-public class SessionManager {
-    private static final String TAG = "SessionManager";
+class SessionManager (private val context: Context) {
 
-    private static String PREF_NAME = "session";
-    private static String KEY_ID = "id";
+    private val TAG = "SessionManager"
 
-    private SharedPreferences prefs;
-    private SharedPreferences.Editor editor;
-
-    @SuppressLint("CommitPrefEdits")
-    public SessionManager(Context context) {
-        prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        editor = prefs.edit();
+    companion object {
+        private const val PREF_NAME = "session"
+        private const val KEY_ID = "id"
     }
 
-    void setId(int id){
-        editor.putInt(KEY_ID, id);
-        editor.apply();
+    private val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+    private val editor = prefs.edit()
+
+    fun setId(id: Int) {
+        editor.putInt(KEY_ID, id).apply()
     }
 
-    int getId(){
-        return prefs.getInt(KEY_ID,0);
-    }
+    fun getId(): Int = prefs.getInt(KEY_ID, 0)
 }
 ```
 
 #
 - TODO 24
-```java
+```kotlin
 @Module
 class AppModule {
 
     //todo 24
     @Singleton
     @Provides
-    static SessionManager providesSessionManager(Context context){
-        return new SessionManager(context);
-    }
-    //end todo 24
+    fun providesSessionManager(context: Context): SessionManager {
+        return SessionManager(context)
+    } //end todo 24
 }
 ```
 
 #
 - TODO 25
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
     //todo 25
     @Inject
-    SessionManager sessionManager;
+    lateinit var sessionManager: SessionManager
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         ...
 
@@ -425,70 +416,66 @@ public class MainActivity extends DaggerAppCompatActivity {
 
 #
 - TODO 26
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
+    //todo 25
     @Inject
-    SessionManager sessionManager;
+    lateinit var sessionManager: SessionManager
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         ...
 
+
         //todo 26
-        //sessionManager = new SessionManager(getApplicationContext());
-        sessionManager.setId(1);
-        Toast.makeText(context, String.valueOf(sessionManager.getId()), Toast.LENGTH_SHORT).show();
-        myLogD(TAG, "Session Inject : "+ sessionManager.getId());
+//        sessionManager = SessionManager(applicationContext);
+        sessionManager.setId(1)
+        Toast.makeText(context, sessionManager.getId().toString(), Toast.LENGTH_SHORT).show()
+        myLogD(TAG, "Session Inject : " + sessionManager.getId())
     }
 }
 ```
 
 #
 - TODO 27 Repository
-```java
+```kotlin
 @Singleton
-public class RepositoryExample {
-    private static final String TAG = "RepositoryExample";
+class RepositoryExample @Inject constructor(
+    private val context: Context,
+    private val sessionManager: SessionManager
+) {
+    val TAG = "RepositoryExample"
 
-    private SessionManager sessionManager;
-    private Context context;
-
-    @Inject
-    RepositoryExample(Context context, SessionManager sessionManager){
-        this.context = context;
-        this.sessionManager = sessionManager;
+    fun exampleFunction() {
+        Toast.makeText(context, "exampleFunction", Toast.LENGTH_SHORT).show()
+        myLogD(TAG, "exampleFunction : " + sessionManager.getId())
     }
 
-    public void exampleFunction(){
-        Toast.makeText(context, "exampleFunction", Toast.LENGTH_SHORT).show();
-        myLogD(TAG, "exampleFunction : "+ sessionManager.getId());
-    }
 }
 ```
 
 #
 - TODO 28
-```java
-public class MainActivity extends DaggerAppCompatActivity {
+```kotlin
+class MainActivity : DaggerAppCompatActivity() {
 
+    //todo 28
     @Inject
-    RepositoryExample repositoryExample;
+    lateinit var repositoryExample: RepositoryExample
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         ...
 
         //todo 29
-        //SessionManager mySession = new SessionManager(getApplicationContext());
-        //repositoryExample = new RepositoryExample(getApplicationContext(), mySession);
-        repositoryExample.exampleFunction();
+//        val mySession = SessionManager(applicationContext);
+//        repositoryExample = RepositoryExample(applicationContext, mySession);
+        repositoryExample.exampleFunction()
     }
 }
 ```
